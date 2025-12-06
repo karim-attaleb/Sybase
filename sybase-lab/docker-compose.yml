@@ -1,0 +1,113 @@
+# Sybase ASE and Replication Server Lab Environment
+# 
+# This docker-compose file sets up:
+# - 2 Sybase ASE 16.0 containers (primary and secondary) using datagrip/sybase:16.0
+# - Replication Server template (requires SAP installer - commented out)
+#
+# Quick Start:
+#   docker-compose up -d
+#   docker-compose logs -f
+#
+# Connect to Primary ASE:
+#   docker exec -it sybase-primary /opt/sybase/OCS-16_0/bin/isql -Usa -PmyPassword -SMYSYBASE
+#
+# Connect to Secondary ASE:
+#   docker exec -it sybase-secondary /opt/sybase/OCS-16_0/bin/isql -Usa -PmyPassword -SMYSYBASE
+#
+# Ports:
+#   - ASE Primary: 5000 (ASE), 5001 (Backup Server)
+#   - ASE Secondary: 5002 (ASE), 5003 (Backup Server)
+#
+# Default Credentials (datagrip/sybase image):
+#   - Username: sa
+#   - Password: See datagrip/sybase image documentation
+#   - Server Name: MYSYBASE
+
+version: '3.8'
+
+services:
+  # Primary ASE Server - Source for replication
+  # Uses community image datagrip/sybase:16.0
+  ase-primary:
+    image: datagrip/sybase:16.0
+    container_name: sybase-primary
+    hostname: sybase-primary
+    ports:
+      - "5000:5000"   # ASE Server port
+      - "5001:5001"   # Backup Server port
+    volumes:
+      - ase-primary-data:/opt/sybase/data
+    environment:
+      - SYBASE=/opt/sybase
+    networks:
+      sybase-net:
+        ipv4_address: 172.28.0.10
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/sybase/OCS-16_0/bin/isql -Usa -PmyPassword -SSYBASE -b <<< 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+  # Secondary ASE Server - Target for replication
+  # Uses community image datagrip/sybase:16.0
+  ase-secondary:
+    image: datagrip/sybase:16.0
+    container_name: sybase-secondary
+    hostname: sybase-secondary
+    ports:
+      - "5002:5000"   # ASE Server port (mapped to 5002 on host)
+      - "5003:5001"   # Backup Server port (mapped to 5003 on host)
+    volumes:
+      - ase-secondary-data:/opt/sybase/data
+    environment:
+      - SYBASE=/opt/sybase
+    networks:
+      sybase-net:
+        ipv4_address: 172.28.0.11
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/sybase/OCS-16_0/bin/isql -Usa -PmyPassword -SSYBASE -b <<< 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+  # Replication Server - Manages replication between ASE instances
+  # NOTE: Requires SAP Replication Server installer (not publicly available)
+  # Uncomment and configure once you have the installer
+  # repserver:
+  #   build:
+  #     context: ./repserver
+  #     dockerfile: Dockerfile
+  #   container_name: sybase-repserver
+  #   hostname: sybase-repserver
+  #   ports:
+  #     - "5100:5100"
+  #   depends_on:
+  #     ase-primary:
+  #       condition: service_healthy
+  #     ase-secondary:
+  #       condition: service_healthy
+  #   networks:
+  #     sybase-net:
+  #       ipv4_address: 172.28.0.12
+  #   restart: unless-stopped
+
+# Named volumes for persistent data
+volumes:
+  ase-primary-data:
+    driver: local
+  ase-secondary-data:
+    driver: local
+
+# Custom network with fixed IPs for reliable inter-container communication
+networks:
+  sybase-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1

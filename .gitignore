@@ -1,0 +1,21 @@
+# SAP ASE and Replication Server installers (large binary files)
+sybase-lab/ase/ASE_Suite.linuxamd64.tgz
+sybase-lab/ase/*.tgz
+sybase-lab/repserver/*.tgz
+sybase-lab/repserver/RepServer_Suite.linuxamd64.tgz
+
+# Docker volumes and runtime data
+sybase-lab/data/
+sybase-lab/logs/
+
+# OS and editor files
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Environment files with secrets
+.env
+*.env.local
