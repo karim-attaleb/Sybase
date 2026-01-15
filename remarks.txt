@@ -1,0 +1,8 @@
+I am a newly recruited dba/data Engineer.
+I need to comment on the very long document.
+My aim is to build a unified data platform with all the mature industry components. 
+It would a lake house architecture.
+I want to build a system with composable and open standard components.
+Can you help me write a summary that would respond to the long document?
+Try and find issues in the document.
+The response should be clear and propose a roadmap towards a lake house.
