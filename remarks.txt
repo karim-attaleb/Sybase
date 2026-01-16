@@ -1,10 +1,11 @@
-Where should governance take place? The Catalog seems like the obvious choice...
-Role of the lake house manager should be amply described. 
-It should be clear that its main purpose is to present a unified view to the user.
-Where does 'DATA QUALITY' take place?
-It seems like your recommendation introduces a Dremio lock in. Can you explain?
-"Recommendation: Evaluate Dremio as primary option—it fills multiple roles (query engine, catalog, semantic layer, data sharing) in one platform."
-
-Add commercial offerings for BI(e.g. PowerBi, Tableau, Qlick....)
-"Build Gold layer": this may be the perfect place to define a star or snowflake schema
-Is "Unity Catalog" a Lakehouse Manager?
+I want to prepare a presentation to my team about a Unified Data Platform.
+The Data platform should be made out of orthogonal composable systems with clear semantics and interface.
+I want to define a clear taxonomy of the different constituent parts of a lake house.
+We really want to have a grammar of the lake house.
+We should clearly state our intent, what are we trying to achieve with a lake house.
+The following elements should be part of the solution....
+Storage
+Open Table Format and ACID capabilities
+Unified governance across all objects in the data platform.
+Catalog
+Query Engine
